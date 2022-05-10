@@ -1,2 +1,2 @@
 # LDD3
-linux device driver 3 edition
+linux device driver 3rd edition
