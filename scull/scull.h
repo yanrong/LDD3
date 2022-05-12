@@ -1,5 +1,5 @@
-/**
- * @file scull.h -- definitions for the char module
+/*
+ * scull.h -- definitions for the char module
  *
  * Copyright (C) 2001 Alessandro Rubini and Jonathan Corbet
  * Copyright (C) 2001 O'Reilly & Associates
@@ -16,12 +16,12 @@
  *
  */
 
-#ifndef _SCULL_H__
+#ifndef _SCULL_H_
 #define _SCULL_H_
 
-#include <linux/ioctl.h> /* need for the _IOW etc stuff used later */
+#include <linux/ioctl.h> /* needed for the _IOW etc stuff used later */
 
-/* Marcos for control debugging message */
+/* Marcos to help debugging */
 
 #undef PDEBUG /* undef it, just in case */
 #ifdef SCULL_DEBUG
@@ -55,10 +55,10 @@
  * The bare device is a variable-length region of memory
  * Use a linked list of indirect blocks
  *
- * "scull_dev->data" point to an array of pointers, each
- * pointer refers to a memeory aras of SCULL_QUANTUM bytes
+ * "scull_dev->data" points to an array of pointers, each
+ * pointer refers to a memory area of SCULL_QUANTUM bytes
  *
- * The arayy (quantum-set) is SCULL_QSET long.
+ * The array (quantum-set) is SCULL_QSET long.
  */
 
 #ifndef SCULL_QUANTUM
@@ -74,7 +74,7 @@
 #define SCULL_P_BUFFER 4000
 #endif
 
-/* representation of scull quantum sets. */
+/* Representation of scull quantum sets. */
 struct scull_qset {
     void **data;
     struct scull_qset *next;
@@ -84,13 +84,13 @@ struct scull_dev {
     struct scull_qset *data;    /* Pointer to first quantum set */
     int quantum;                /* the current quantum size */
     int qset;                   /* the current array size */
-    unsigned long size;         /* amount of data store here */
+    unsigned long size;         /* amount of data stored here */
     unsigned int access_key;    /* used by sculluid  and scullpriv */
     struct semaphore sem;       /* mutual exclusion semaphore */
     struct cdev cdev;           /* Char device structure */
 };
 
-/* split minor in two parts */
+/* Split minors in two parts */
 #define TYPE(minor) (((minor) >> 4) & 0xf)  /* high nibble */
 #define NUM(minor) ((minor) & 0xf)          /* low nibble */
 
@@ -100,7 +100,7 @@ extern int scull_nr_devs;
 extern int scull_quantum;
 extern int scull_qset;
 
-extern in scull_p_buffer; /* pipe.c */
+extern int scull_p_buffer; /* pipe.c */
 
 /* Prototypes for shared functions */
 int     scull_p_init(dev_t dev);
@@ -112,12 +112,12 @@ int     scull_trim(struct scull_dev *dev);
 
 ssize_t scull_read(struct file *filp, char __user *buf, size_t count,
                     loff_t *f_pos);
-ssize_t scull_write(struct file *filp, char __user *buf, size_t count,
+ssize_t scull_write(struct file *filp, const char __user *buf, size_t count,
                     loff_t *f_pos);
 
 loff_t  scull_llseek(struct file *filp, loff_t off, int whence);
 int     scull_ioctl(struct inode *inode, struct file *filp,
-                    unsigned int cmd, unsinged long arg);
+                    unsigned int cmd, unsigned long arg);
 
 /* Ioctl definitions */
 
@@ -131,9 +131,9 @@ int     scull_ioctl(struct inode *inode, struct file *filp,
  * S means "Set" through a ptr,
  * T means "Tell" directly with the argument value
  * G means "Get": reply by setting through a pointer
- * Q means "Query": reponse is on the return value
- * X means "eXchange": swith G and S automatically
- * H means "sHift": switch T and Q automatically
+ * Q means "Query": response is on the return value
+ * X means "eXchange": switch G and S atomically
+ * H means "sHift": switch T and Q atomically
  */
 #define SCULL_IOCSQUANTUM   _IOW(SCULL_IOC_MAGIC, 1, int)
 #define SCULL_IOCSQSET      _IOW(SCULL_IOC_MAGIC, 2, int)
@@ -143,18 +143,18 @@ int     scull_ioctl(struct inode *inode, struct file *filp,
 #define SCULL_IOCGQSET      _IOR(SCULL_IOC_MAGIC, 6, int)
 #define SCULL_IOCQQUANTUM   _IO(SCULL_IOC_MAGIC, 7)
 #define SCULL_IOCQQSET      _IO(SCULL_IOC_MAGIC, 8)
-#define SCULL_IOCXQUANTUM   _IOWR(SCULL_IOC_MAGIC, 9)
-#define SCULL_IOCXQSET      _IOWR(SCULL_IOC_MAGIC, 10)
+#define SCULL_IOCXQUANTUM   _IOWR(SCULL_IOC_MAGIC, 9, int)
+#define SCULL_IOCXQSET      _IOWR(SCULL_IOC_MAGIC, 10, int)
 #define SCULL_IOCHQUANTUM   _IO(SCULL_IOC_MAGIC, 11)
 #define SCULL_IOCHQSET      _IO(SCULL_IOC_MAGIC, 12)
 
 /**
- * The other entities only have "Tell" and "Query", beacuse they're
+ * The other entities only have "Tell" and "Query", because they're
  * not printed in the book, and there's no need to have all six.
- * (The previous stuff was only there to show different ways to do it)
+ * (The previous stuff was only there to show different ways to do it.)
  */
 #define SCULL_P_IOCTSIZE    _IO(SCULL_IOC_MAGIC, 13)
-#define SCULL_P_IOCQSIZE    _IO(SCULL_IOC_MAGIC, 14);
+#define SCULL_P_IOCQSIZE    _IO(SCULL_IOC_MAGIC, 14)
 /* ..more to come */
 
 #define SCULL_IOC_MAXNR 14
