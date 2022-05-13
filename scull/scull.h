@@ -1,4 +1,4 @@
-/**
+/*
  * scull.h -- definitions for the char module
  *
  * Copyright (C) 2001 Alessandro Rubini and Jonathan Corbet
@@ -19,9 +19,9 @@
 #ifndef _SCULL_H_
 #define _SCULL_H_
 
-#include <linux/ioctl.h> /* need for the _IOW etc stuff used later */
+#include <linux/ioctl.h> /* needed for the _IOW etc stuff used later */
 
-/* Marcos for control debugging message */
+/* Marcos to help debugging */
 
 #undef PDEBUG /* undef it, just in case */
 #ifdef SCULL_DEBUG
@@ -74,7 +74,7 @@
 #define SCULL_P_BUFFER 4000
 #endif
 
-/* representation of scull quantum sets. */
+/* Representation of scull quantum sets. */
 struct scull_qset {
     void **data;
     struct scull_qset *next;
@@ -84,13 +84,13 @@ struct scull_dev {
     struct scull_qset *data;    /* Pointer to first quantum set */
     int quantum;                /* the current quantum size */
     int qset;                   /* the current array size */
-    unsigned long size;         /* amount of data store here */
+    unsigned long size;         /* amount of data stored here */
     unsigned int access_key;    /* used by sculluid  and scullpriv */
     struct semaphore sem;       /* mutual exclusion semaphore */
     struct cdev cdev;           /* Char device structure */
 };
 
-/* split minor in two parts */
+/* Split minors in two parts */
 #define TYPE(minor) (((minor) >> 4) & 0xf)  /* high nibble */
 #define NUM(minor) ((minor) & 0xf)          /* low nibble */
 
@@ -117,7 +117,7 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count,
 
 loff_t  scull_llseek(struct file *filp, loff_t off, int whence);
 int     scull_ioctl(struct inode *inode, struct file *filp,
-                    unsigned int cmd, unsinged long arg);
+                    unsigned int cmd, unsigned long arg);
 
 /* Ioctl definitions */
 

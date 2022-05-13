@@ -108,7 +108,7 @@ int scull_read_procmem(char *buf, char **start, off_t offset,
 
 /*
 * For now, the seq_file implementation will exist in parallel. The
-* older read_procmem function maybe go away, though.
+* older read_procmem function should maybe go away, though.
 */
 
 /*
@@ -481,6 +481,7 @@ int scull_ioctl(struct inode *inode, struct file *filp,
     return retval;
 }
 
+/* The "extended" operations --only seek */
 loff_t scull_llseek(struct file *filp, loff_t off, int whence)
 {
     struct scull_dev *dev = filp->private_data;
@@ -539,7 +540,7 @@ static void __exit scull_cleanup_module(void)
     scull_remove_proc();
 #endif
 
-    /* cleaup_module is never called if registering failed */
+    /* cleanup module is never called if registering failed */
     unregister_chrdev_region(devno, scull_nr_devs);
 
     /* and call the cleanup functions for friend devices */

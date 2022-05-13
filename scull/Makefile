@@ -13,7 +13,7 @@ CFLAGS += -I$(LDDINC)
 
 ifneq ($(KERNELRELEASE),)
 # call from kernel build system
-scull_objs := mian.o pipe.o acces.pipe
+scull-objs := main.o pipe.o access.o
 obj-m := scull.o
 
 else
@@ -31,6 +31,6 @@ clean:
 depend .depend dep:
 	$(CC) $(CFLAGS) -M *.c > .depend
 
-ifeq (.depend, ($wilcard .depend))
+ifeq (.depend, $(wildcard .depend))
 include .depend
 endif

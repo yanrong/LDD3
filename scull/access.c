@@ -92,7 +92,7 @@ static int scull_u_open(struct inode *inode, struct file *filp)
     spin_lock(&scull_u_lock);
     if (scull_u_count &&
             (scull_u_owner != current->uid) && /* allow user */
-            (scull_u_owner != current->euid) && /* allow whoever */
+            (scull_u_owner != current->euid) && /* allow whoever did su*/
             !capable(CAP_DAC_OVERRIDE)) { /* still allow root */
         spin_unlock(&scull_u_lock);
         return -EBUSY; /* -EPERM would confuse the user */
@@ -130,7 +130,7 @@ struct file_operations scull_user_fops = {
 	.release =    scull_u_release,
 };
 
-/* Next the device with blocking-open base on uid */
+/* Next the device with blocking-open based on uid */
 static struct scull_dev scull_w_device;
 static int scull_w_count;   /* initialized to 0 by default */
 static uid_t scull_w_owner; /* initialized to 0 by default */
@@ -308,7 +308,7 @@ static void scull_access_setup(dev_t devno, struct scull_adev_info *devinfo)
     /* Initialize the device structure */
     dev->quantum = scull_quantum;
     dev->qset = scull_qset;
-    init_MUTEX($dev->sem);
+    init_MUTEX(&dev->sem);
 
     /* Do the cdev stuff. */
     cdev_init(&dev->cdev, devinfo->fops);
@@ -316,7 +316,7 @@ static void scull_access_setup(dev_t devno, struct scull_adev_info *devinfo)
     dev->cdev.owner = THIS_MODULE;
     err = cdev_add(&dev->cdev, devno, 1);
 
-    if (err) { /* Faile gracefully if need be */
+    if (err) { /* Fail gracefully if need be */
         printk(KERN_NOTICE "Error %d adding %s\n", err, devinfo->name);
         kobject_put(&dev->cdev.kobj);
     } else {
