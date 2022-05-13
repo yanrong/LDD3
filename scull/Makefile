@@ -8,8 +8,10 @@ else
 	DEBFLAGS = -O2
 endif
 
-CFLAGS += $(DEBFLAGS)
-CFLAGS += -I$(LDDINC)
+LDDINC = $(PWD)/../include
+
+EXTRA_CFLAGS += $(DEBFLAGS)
+EXTRA_CFLAGS += -I$(LDDINC)
 
 ifneq ($(KERNELRELEASE),)
 # call from kernel build system
@@ -21,7 +23,7 @@ KERNELDIR ?= /lib/modules/$(shell uname -r)/build
 PWD 	  := $(shell pwd)
 
 modules:
-	$(MAKE) -C $(KERNELDIR) M=$(PWD) LDDINC=$(PWD)/../include modules
+	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
 
 endif
 
