@@ -149,8 +149,8 @@ static int scull_seq_show(struct seq_file *s, void *v)
 
     for (d = dev->data; d; d = d->next) { /* scan the list */
         seq_printf(s, "    item at %p, qset at %p\n", d, d->data);
-        if (d->data && !d->next) { /* dump only the last item */
-            for (i = 0; i < dev->qset; i++)
+        if (d->data && !d->next)  /* dump only the last item */
+            for (i = 0; i < dev->qset; i++) {
                 if (d->data[i])
                     seq_printf(s, "    % 4i: %8p\n", i, d->data[i]);
         }
