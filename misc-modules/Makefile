@@ -4,6 +4,10 @@
 # This conditional select whether we are being included from the 
 # kernel Makefile or not.
 
+LDDINC = $(PWD)/../include
+
+EXTRA_CFLAGS += -I$(LDDINC)
+
 ifeq ($(KERNELRELEASE),)
 	# Assuse that the source tree is where the running kernel was build
 	# You should set KERNELDIR in the enviroment if it's elsewhere
@@ -24,6 +28,6 @@ clean:
 
 else
 	# called from kernel build system:just declare what our modles are
-	obj-m := hello.o hellop.o
+	obj-m := hello.o hellop.o jit.o
 
 endif
