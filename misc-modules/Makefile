@@ -28,6 +28,6 @@ clean:
 
 else
 	# called from kernel build system:just declare what our modles are
-	obj-m := hello.o hellop.o jit.o
+	obj-m := hello.o hellop.o jit.o jiq.o
 
 endif
