@@ -1,5 +1,5 @@
 /*  -*- C -*-
- * mmap.c -- memory mapping for the scullc char module
+ * mmap.c -- memory mapping for the scullp char module
  *
  * Copyright (C) 2001 Alessandro Rubini and Jonathan Corbet
  * Copyright (C) 2001 O'Reilly & Associates
@@ -19,29 +19,30 @@
 #include <linux/mm.h>
 #include <linux/errno.h>
 #include <asm/pgtable.h>
+#include <linux/fs.h>
+#include <linux/version.h>
 
-#include "scullc.h"
-
+#include "scullp.h"
 
 /*
  * open and close: just keep track of how many times the device is
  * mapped, to avoid releasing it.
  */
-void scullc_vma_open(struct vm_area_struct *vma)
+void scullp_vma_open(struct vm_area_struct *vma)
 {
-    struct scullc_dev *dev = vma->vm_private_data;
+    struct scullp_dev *dev = vma->vm_private_data;
     dev->vmas++;
 }
 
-void scullc_vma_close(struct vm_area_struct *vma)
+void scullp_vma_close(struct vm_area_struct *vma)
 {
-    struct scullc_dev *dev = vma->vm_private_data;
+    struct scullp_dev *dev = vma->vm_private_data;
     dev->vmas--;
 }
 
 /*
  * The nopage method: the core of the file. It retrieves the
- * page required from the scullc device and returns it to the
+ * page required from the scullp device and returns it to the
  * user. The count for the page must be incremented, because
  * it is automatically decremented at page unmap.
  *
@@ -51,21 +52,26 @@ void scullc_vma_close(struct vm_area_struct *vma)
  * pages from a multipage block: when they are unmapped, their count
  * is individually decreased, and would drop to 0.
  */
-struct page *scullc_vma_nopage(struct vm_area_struct *vma,
-                                unsigned long address, int *type)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,17,0)
+typedef int vm_fault_t;
+#endif
+static vm_fault_t scullp_vma_nopage(struct vm_fault *vmf)
 {
     unsigned long offset;
-    struct scullc_dev *ptr;
-    struct scullc_dev *dev = vma->vm_private_data;
-    struct page *page = NOPAGE_SIGBUS;
+    struct vm_area_struct *vma = vmf->vma;
+    struct scullp_dev *ptr;
+    struct scullp_dev *dev = vma->vm_private_data;
+    struct page *page = NULL;
     void *pageptr = NULL; /* default to "missing */
+    vm_fault_t retval = VM_FAULT_NOPAGE;
 
-    down(&dev->sem);
-    offset = (address - vma->vm_start) + (vma->vm_pgoff << PAGE_SHIFT);
+    mutex_lock(&dev->mutex);
+    offset = (unsigned long)(vmf->address - vma->vm_start) + (vma->vm_pgoff << PAGE_SHIFT);
+
     if (offset >= dev->size) goto out; /* out of range */
 
 	/*
-	 * Now retrieve the scullc device from the list,then the page.
+	 * Now retrieve the scullp device from the list,then the page.
 	 * If the device has holes, the process receives a SIGBUS when
 	 * accessing the hole.
 	 */
@@ -76,33 +82,34 @@ struct page *scullc_vma_nopage(struct vm_area_struct *vma,
 	}
 	if (ptr && ptr->data) pageptr = ptr->data[offset];
 	if (!pageptr) goto out; /* hole or end-of-file */
+    page = virt_to_page(pageptr);
 
 	/* got it, now increment the count */
 	get_page(page);
-	if (type)
-		*type = VM_FAULT_MINOR;
+    vmf->page = page;
+    retval = 0;
 out:
-	up(&dev->sem);
-	return page;
+	mutex_unlock(&dev->mutex);
+	return retval;
 }
 
-struct  vm_operations_struct scullc_vm_ops = {
-    .open = scullc_vma_open,
-    .close = scullc_vma_close,
-    .nopage = scullc_vma_nopage,
+struct  vm_operations_struct scullp_vm_ops = {
+    .open = scullp_vma_open,
+    .close = scullp_vma_close,
+    .fault = scullp_vma_nopage,
 };
 
-int scullc_mmap(struct file *filp, struct vm_area_struct *vma)
+int scullp_mmap(struct file *filp, struct vm_area_struct *vma)
 {
-    struct inode *inode = filp->f_dentry->d_inode;
+    struct inode *inode = filp->f_path.dentry->d_inode;
 
     /* refuse to map it if order is not 0 */
-    if (scullc_devices[iminor(inode)].order)
+    if (scullp_devices[iminor(inode)].order)
         return -ENODEV;
 
     /* don't do anything here: "nopage" will set up page table entries */
-    vma->vm_ops = &scullc_vm_ops;
+    vma->vm_ops = &scullp_vm_ops;
     vma->vm_private_data = filp->private_data;
-    scullc_vma_open(vma);
+    scullp_vma_open(vma);
     return 0;
 }

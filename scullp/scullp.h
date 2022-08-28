@@ -16,19 +16,20 @@
  *
  */
 
-#ifndef _SCULLC_H_
-#define _SCULLC_H_
+#ifndef _SCULLP_H_
+#define _SCULLP_H_
 
 #include <linux/ioctl.h> /* needed for the _IOW etc stuff used later */
 #include <linux/cdev.h>
+#include <linux/semaphore.h>
 
 /* Marcos to help debugging */
 
 #undef PDEBUG /* undef it, just in case */
-#ifdef SCULLC_DEBUG
+#ifdef SCULLP_DEBUG
 #   ifdef __KERNEL__
 /* This one if debugging is on, and kernel space */
-#       define PDEBUG(fmt, args...) printk(KERN_DEBUG "scullc :" fmt, ##args)
+#       define PDEBUG(fmt, args...) printk(KERN_DEBUG "scullp :" fmt, ##args)
 #   else
 /* This one for use space */
 #       define PDEBUG(fmt, args...) fprintf(stderr, fmt, ##args)
@@ -40,66 +41,57 @@
 #undef PDEBUGG
 #define PDEBUGG(fmt, args...)  /* nothing: it's a placeholder */
 
-#ifndef SCULLC_MAJOR
-#define SCULLC_MAJOR 0 /* dynamic major by default */
-#endif
+#define SCULLP_MAJOR 0 /* dynamic major by default */
 
-#ifndef SCULLC_DEVS
-#define SCULLC_DEVS 4 /* scullc0 through scull3 */
-#endif
+#define SCULLP_DEVS 4 /* scullp0 through scull3 */
 
 /**
  * The bare device is a variable-length region of memory
  * Use a linked list of indirect blocks
  *
- * "scullc_dev->data" points to an array of pointers, each
+ * "scullp_dev->data" points to an array of pointers, each
  * pointer refers to a memory page
  * The array (quantum-set) is SCULL_QSET long.
  */
+#define SCULLP_ORDER    0 /* one page at a time */
+#define SCULLP_QSET     500
 
-#ifndef SCULLC_QUANTUM
-#define SCULLC_QUANTUM 4000
-#endif
-
-#ifndef SCULLC_QSET
-#define SCULLC_QSET 500
-#endif
-
-struct scullc_dev {
+struct scullp_dev {
     void **data;
-    struct scullc_dev *next;    /* next listitem */
+    struct scullp_dev *next;    /* next listitem */
     int vmas;                   /* active mappings */
-    int quantum;                /* the current allocation size */
+    int order;                  /* the current allocation oreer */
     int qset;                   /* the current array size */
     size_t size;                /* amount of data stored here */
-    struct semaphore sem;       /* mutual exclusion semaphore */
+    //struct semaphore sem;       /* mutual exclusion semaphore */
+    struct mutex mutex;       /* mutual exclusion semaphore */
     struct cdev cdev;           /* Char device structure */
 };
 
-extern struct scullc_dev *scullc_devices;
-extern struct file_operations scullc_fops;
+extern struct scullp_dev *scullp_devices;
+extern struct file_operations scullp_fops;
 
 /* The different configurable parameters */
-extern int scullc_major; /* main.c */
-extern int scullc_devs;
-extern int scullc_order;
-extern int scullc_qset;
+extern int scullp_major; /* main.c */
+extern int scullp_devs;
+extern int scullp_order;
+extern int scullp_qset;
 
 /* Prototypes for shared functions */
-int scullc_trim(struct scullc_dev *dev);
-struct scullc_dev *scullc_follow(struct scullc_dev *dev, int n);
+int scullp_trim(struct scullp_dev *dev);
+struct scullp_dev *scullp_follow(struct scullp_dev *dev, int n);
 
-#ifdef SCULLC_DEBUG
-#define SCULLC_USE_PROC
+#ifdef SCULLP_DEBUG
+#define SCULLP_USE_PROC
 #endif
 
 /* Ioctl definitions */
 
 /* Use 'k' as magic number */
-#define SCULLC_IOC_MAGIC 'K'
+#define SCULLP_IOC_MAGIC 'K'
 /* Please use a different 8-bit number in your code */
 
-#define SCULLC_IOCRESET _IO(SCULLC_IOC_MAGIC, 0)
+#define SCULLP_IOCRESET _IO(SCULLP_IOC_MAGIC, 0)
 
 /**
  * S means "Set" through a ptr,
@@ -109,19 +101,19 @@ struct scullc_dev *scullc_follow(struct scullc_dev *dev, int n);
  * X means "eXchange": switch G and S atomically
  * H means "sHift": switch T and Q atomically
  */
-#define SCULLC_IOCSQUANTUM   _IOW(SCULLC_IOC_MAGIC,     1, int)
-#define SCULLC_IOCTQUANTUM   _IO(SCULLC_IOC_MAGIC,      2)
-#define SCULLC_IOCGQUANTUM   _IOR(SCULLC_IOC_MAGIC,     3, int)
-#define SCULLC_IOCQQUANTUM   _IO(SCULLC_IOC_MAGIC,      4)
-#define SCULLC_IOCXQUANTUM   _IOWR(SCULLC_IOC_MAGIC,    5, int)
-#define SCULLC_IOCHQUANTUM   _IO(SCULLC_IOC_MAGIC,      6)
-#define SCULLC_IOCSQSET      _IOW(SCULLC_IOC_MAGIC,     7, int)
-#define SCULLC_IOCTQSET      _IO(SCULLC_IOC_MAGIC,      8)
-#define SCULLC_IOCGQSET      _IOR(SCULLC_IOC_MAGIC,     9, int)
-#define SCULLC_IOCQQSET      _IO(SCULLC_IOC_MAGIC,      10)
-#define SCULLC_IOCXQSET      _IOWR(SCULLC_IOC_MAGIC,    11, int)
-#define SCULLC_IOCHQSET      _IO(SCULLC_IOC_MAGIC,      12)
+#define SCULLP_IOCSORDER   _IOW(SCULLP_IOC_MAGIC,     1, int)
+#define SCULLP_IOCTORDER   _IO(SCULLP_IOC_MAGIC,      2)
+#define SCULLP_IOCGORDER   _IOR(SCULLP_IOC_MAGIC,     3, int)
+#define SCULLP_IOCQORDER   _IO(SCULLP_IOC_MAGIC,      4)
+#define SCULLP_IOCXORDER   _IOWR(SCULLP_IOC_MAGIC,    5, int)
+#define SCULLP_IOCHORDER   _IO(SCULLP_IOC_MAGIC,      6)
+#define SCULLP_IOCSQSET    _IOW(SCULLP_IOC_MAGIC,     7, int)
+#define SCULLP_IOCTQSET    _IO(SCULLP_IOC_MAGIC,      8)
+#define SCULLP_IOCGQSET    _IOR(SCULLP_IOC_MAGIC,     9, int)
+#define SCULLP_IOCQQSET    _IO(SCULLP_IOC_MAGIC,      10)
+#define SCULLP_IOCXQSET    _IOWR(SCULLP_IOC_MAGIC,    11, int)
+#define SCULLP_IOCHQSET    _IO(SCULLP_IOC_MAGIC,      12)
 
-#define SCULLC_IOC_MAXNR 12
+#define SCULLP_IOC_MAXNR 12
 
-#endif /* _SCULLC_H_ */
+#endif /* _SCULLP_H_ */
