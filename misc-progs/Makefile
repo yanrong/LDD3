@@ -1,7 +1,7 @@
-FILE = setconsole nbtest
+FILE = setconsole nbtest inp outp
 
-KERNELDIR ?= /lib/module/$(shell uname -r)/build
-INCLUDEDIR = $(KERNELDIR)/INCLUDEDIR
+KERNELDIR ?= /lib/modules/$(shell uname -r)/build
+INCLUDEDIR = $(KERNELDIR)/include
 CFLAGS = -O2 -fomit-frame-pointer -Wall -I$(INCLUDEDIR)
 
 all: $(FILE)
