@@ -113,7 +113,7 @@ static struct file_operations scullc_proc_ops = {
     .release    = single_release
 };
 
-#endif /** SCULLC_USE_PROC  */
+#endif /* SCULLC_USE_PROC  */
 
 /* Open and close */
 int scullc_open(struct inode *inode, struct file *filp)
@@ -276,7 +276,7 @@ long scullc_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
     if (_IOC_TYPE(cmd) != SCULLC_IOC_MAGIC) return -ENOTTY;
     if (_IOC_NR(cmd) > SCULLC_IOC_MAXNR) return -ENOTTY;
 
-    /**
+    /*
      * the type is a bitmask, and VERIFY_WRITE catches R/W
      * transfers, Note that the type is user-oriented, while
      * verify_area is kernel-oriented, so the concept of "read"
@@ -445,7 +445,7 @@ int scullc_init(void)
     int result, i;
     dev_t dev = MKDEV(scullc_major, 0);
 
-    /**
+    /*
      * Register your major, and accept a dynamic number.
      */
     if (scullc_major) {
@@ -458,7 +458,7 @@ int scullc_init(void)
     if(result < 0) /* a negative return represent an error */
         return result;
 
-    /**
+    /*
      * allocate the devices -- we can't have them static, as the number
      * can be specified at load time
      */
@@ -494,7 +494,7 @@ fail:
     return result;
 }
 
-/**
+/*
  * The cleanup function is used to handle intialization failures as well
  * Thefore, it must be careful to work correctly even if some of the items
  * have not been initialized

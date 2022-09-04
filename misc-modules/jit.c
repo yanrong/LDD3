@@ -1,4 +1,4 @@
-/**
+/*
  * jit.c -- the just-in-time module
  * Copyright (C) 2001,2003 Alessandro Rubini and Jonathan Corbet
  * Copyright (C) 2001,2003 O'Reilly & Associates

@@ -51,7 +51,7 @@
 #define SCULL_P_NR_DEVS 4 /* scullpipe0 through scullpipe3 */
 #endif
 
-/**
+/*
  * The bare device is a variable-length region of memory
  * Use a linked list of indirect blocks
  *
@@ -129,7 +129,7 @@ long scull_ioctl(struct file *filp, unsigned int cmd, unsigned long arg);
 
 #define SCULL_IOCRESET _IO(SCULL_IOC_MAGIC, 0)
 
-/**
+/*
  * S means "Set" through a ptr,
  * T means "Tell" directly with the argument value
  * G means "Get": reply by setting through a pointer
@@ -150,7 +150,7 @@ long scull_ioctl(struct file *filp, unsigned int cmd, unsigned long arg);
 #define SCULL_IOCHQUANTUM   _IO(SCULL_IOC_MAGIC, 11)
 #define SCULL_IOCHQSET      _IO(SCULL_IOC_MAGIC, 12)
 
-/**
+/*
  * The other entities only have "Tell" and "Query", because they're
  * not printed in the book, and there's no need to have all six.
  * (The previous stuff was only there to show different ways to do it.)

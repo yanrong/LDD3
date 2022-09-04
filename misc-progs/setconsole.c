@@ -7,7 +7,7 @@
 
 int main(int argc, char *argv[])
 {
-    char bytes[2] = {11, 0}; /** 11 is the TIOCLINUX cmd number */
+    char bytes[2] = {11, 0}; /* 11 is the TIOCLINUX cmd number */
     if (argc == 2) bytes[1] = atoi(argv[1]); /* the chosen console */
     else {
         fprintf(stderr, "%s: need a string arg\n", argv[0]);

@@ -48,7 +48,7 @@
 #define SCULLC_DEVS 4 /* scullc0 through scull3 */
 #endif
 
-/**
+/*
  * The bare device is a variable-length region of memory
  * Use a linked list of indirect blocks
  *
@@ -101,7 +101,7 @@ struct scullc_dev *scullc_follow(struct scullc_dev *dev, int n);
 
 #define SCULLC_IOCRESET _IO(SCULLC_IOC_MAGIC, 0)
 
-/**
+/*
  * S means "Set" through a ptr,
  * T means "Tell" directly with the argument value
  * G means "Get": reply by setting through a pointer

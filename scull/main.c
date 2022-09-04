@@ -167,7 +167,7 @@ static struct seq_operations scull_seq_ops = {
     .show   = scull_seq_show
 };
 
-/**
+/*
  * Now to implement the /proc file we need only make a open
  * method which sets up the sequence operators.
  */
@@ -384,14 +384,14 @@ long scull_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
     int err = 0, tmp;
     int retval = 0;
 
-    /**
+    /*
      * extract the type and number bitfields, and don't decode
      * wrong cmds: return ENOTTY(inappropriate ioctl) before access_ok()
      */
     if (_IOC_TYPE(cmd) != SCULL_IOC_MAGIC) return -ENOTTY;
     if (_IOC_NR(cmd) > SCULL_IOC_MAXNR) return -ENOTTY;
 
-    /**
+    /*
      * the direction is bitmask, and VERIFY_WRITE catches R/W
      * transfers, 'Type' is user-oriented, while access_ok if
      * kernel-oriented, so the concept of "read" and "write"
@@ -481,7 +481,7 @@ long scull_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
         scull_qset = arg;
         return tmp;
 
-    /**
+    /*
      * The following two change the buffer size for scullpipe.
      * The scullpipe devie uses this same ioctl method, just to
      * wirte less code. Actually, it's the same driver, isn't it?
@@ -536,7 +536,7 @@ struct file_operations scull_fops = {
 };
 /* Finally, the module stuff */
 
-/**
+/*
  * The cleanup function is used to handle intialization failures as well
  * Thefore, it must be careful to work correctly even if some of the items
  * have not been initialized
@@ -588,7 +588,7 @@ int scull_init_module(void)
     int result, i;
     dev_t dev = 0;
 
-    /**
+    /*
      * Get a range of minor numbers to work with, asking for dynamic
      * major unless directed otherwise at load time
      */
@@ -605,7 +605,7 @@ int scull_init_module(void)
         return result;
     }
 
-    /**
+    /*
      * allocate the devices -- we can't have them static, as the number
      * can be specified at load time
      */

@@ -1,4 +1,4 @@
-/**
+/*
  * access.c -- the files with access control on open
  *
  * Copyright (C) 2001 Alessandro Rubini and Jonathan Corbet
