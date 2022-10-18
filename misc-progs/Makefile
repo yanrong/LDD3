@@ -1,4 +1,4 @@
-FILE = datasize setconsole nbtest inp outp
+FILE = datasize dataalign setconsole nbtest inp outp
 
 KERNELDIR ?= /lib/modules/$(shell uname -r)/build
 INCLUDEDIR = $(KERNELDIR)/include
