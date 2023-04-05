@@ -60,7 +60,7 @@ struct scullp_dev {
     void **data;
     struct scullp_dev *next;    /* next listitem */
     int vmas;                   /* active mappings */
-    int order;                  /* the current allocation oreer */
+    int order;                  /* the current allocation order */
     int qset;                   /* the current array size */
     size_t size;                /* amount of data stored here */
     //struct semaphore sem;       /* mutual exclusion semaphore */
